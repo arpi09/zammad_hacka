@@ -65,6 +65,53 @@ async def get_tickets_timeseries(
         )
 
 
+@router.get("/tickets/timeseries-table-2")
+async def get_tickets_timeseries_table_2(
+    from_time: Optional[str] = Query(None, alias="from"),
+    to_time: Optional[str] = Query(None, alias="to"),
+    service: ZammadService = Depends(get_zammad_service),
+):
+    """
+    Get tickets as time-series data in table format for easier extraction.
+    Returns data with separate columns for value and timestamp.
+    """
+    try:
+        tickets = await service.get_all_tickets()
+        
+        # Group tickets by creation date
+        timeseries_data = {}
+        
+        for ticket in tickets:
+            if ticket.created_at:
+                if isinstance(ticket.created_at, str):
+                    date_obj = datetime.fromisoformat(ticket.created_at.replace("Z", "+00:00"))
+                else:
+                    date_obj = ticket.created_at
+                
+                date_key = date_obj.strftime("%Y-%m-%d")
+                
+                if date_key not in timeseries_data:
+                    timeseries_data[date_key] = {
+                        "time": int(date_obj.timestamp() * 1000),
+                        "value": 0,
+                    }
+                timeseries_data[date_key]["value"] += 1
+        
+        # Convert to table format with separate columns
+        result = []
+        for data in sorted(timeseries_data.values(), key=lambda x: x["time"]):
+            result.append({
+                "time": data["time"],
+                "value": data["value"]
+            })
+        
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error generating time-series data: {str(e)}"
+        )
+
+
 @router.get("/tickets/by-state")
 async def get_tickets_by_state_grafana(
     service: ZammadService = Depends(get_zammad_service),
