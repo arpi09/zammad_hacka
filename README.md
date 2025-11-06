@@ -1,6 +1,6 @@
 # Zammad Hacka
 
-A web application for visualizing Zammad ticket data with Python backend and React frontend.
+A web application for visualizing Zammad ticket data with Python backend, React frontend, and Grafana integration.
 
 ## Quick Commands
 
@@ -47,6 +47,9 @@ zammad_hacka/
 │   │   └── test/           # Test setup
 │   ├── package.json        # Node dependencies
 │   └── Dockerfile          # Frontend Docker configuration
+├── grafana/                # Grafana configuration
+│   ├── provisioning/      # Grafana datasource and dashboard provisioning
+│   └── dashboards/        # Grafana dashboard JSON files
 ├── docker-compose.yml      # Docker Compose configuration
 ├── package.json            # Root package.json with start scripts
 └── README.md               # This file
@@ -73,12 +76,17 @@ This project follows **SOLID principles**:
 
 ### Frontend
 
-- **React 18**: UI library
+- **React 18**: UI library (optional - can use Grafana instead)
 - **TypeScript**: Type safety
 - **Vite**: Build tool
 - **React Query**: Data fetching and caching
 - **Recharts**: Data visualization
 - **Vitest**: Testing framework
+
+### Visualization
+
+- **Grafana**: Professional data visualization and monitoring (recommended)
+- **React Frontend**: Custom UI solution (kept as backup option)
 
 ## Quick Start
 
@@ -193,7 +201,8 @@ Or use the platform-specific scripts:
 This will start:
 
 - Backend API at `http://localhost:8000`
-- Frontend app at `http://localhost:5173`
+- Frontend app at `http://localhost:5173` (if using React frontend)
+- Grafana at `http://localhost:3001` (if using Docker Compose)
 
 You can also start them separately:
 
@@ -275,6 +284,85 @@ docker-compose up --build
 ```
 
 This will start both backend and frontend services.
+
+### Grafana Setup
+
+Grafana is included as the recommended visualization solution. The backend includes Grafana-compatible endpoints.
+
+**Current Setup: On-Premises Grafana (Docker)**
+
+The current configuration is set up for **on-premises Grafana** running in Docker. The backend API endpoints are generic and will also work with **Grafana Cloud** if you make your backend API publicly accessible.
+
+**Using Docker Compose (On-Premises - Recommended):**
+
+1. Start all services including Grafana:
+
+```bash
+docker-compose up --build
+```
+
+2. Access Grafana at `http://localhost:3001`
+
+   - Default username: `admin`
+   - Default password: `admin`
+   - Change these in production!
+
+3. The Zammad API datasource is automatically configured
+4. Example dashboards are available in the Grafana UI
+
+**Manual Grafana Setup:**
+
+1. Install Grafana following [official documentation](https://grafana.com/docs/grafana/latest/setup-grafana/installation/)
+
+2. Install the Simple JSON Datasource plugin:
+
+   ```bash
+   grafana-cli plugins install grafana-simple-json-datasource
+   ```
+
+   Then restart Grafana.
+
+3. Add the backend as a data source:
+
+   - Go to Configuration → Data Sources
+   - Click "Add data source"
+   - Select "Simple JSON"
+   - Configure:
+     - Name: "Zammad API"
+     - URL: `http://localhost:8000/api/v1/grafana`
+     - Access: Server (default)
+   - Click "Save & Test"
+
+4. Available Grafana endpoints:
+   - `/api/v1/grafana/query` - Main query endpoint (supports multiple targets)
+   - `/api/v1/grafana/search` - Returns available metrics
+   - `/api/v1/grafana/annotations` - For dashboard annotations
+   - `/api/v1/grafana/tickets/timeseries` - Time-series data for tickets
+   - `/api/v1/grafana/tickets/by-state` - Tickets grouped by state
+   - `/api/v1/grafana/tickets/by-priority` - Tickets grouped by priority
+
+**Grafana vs React Frontend:**
+
+- **Grafana (Recommended)**: Professional dashboards, better for monitoring, alerting, and time-series analysis
+- **React Frontend**: Custom UI, more flexibility for specific use cases, kept as backup option
+
+You can use either or both - they both connect to the same backend API.
+
+**Using Grafana Cloud:**
+
+If you prefer to use Grafana Cloud instead of on-premises:
+
+1. Deploy your backend API to a publicly accessible URL (e.g., AWS, Azure, Heroku, etc.)
+2. In Grafana Cloud, go to Configuration → Data Sources
+3. Install the "Simple JSON Datasource" plugin (if not already available)
+4. Add a new datasource:
+   - Type: Simple JSON
+   - Name: "Zammad API"
+   - URL: `https://your-backend-api.com/api/v1/grafana` (your public backend URL)
+   - Access: Server
+5. The same endpoints will work - just use your public backend URL instead of `http://backend:8000`
+
+**Note:** The backend API endpoints are designed to work with both on-premises Grafana and Grafana Cloud. The only difference is the URL you use when configuring the datasource.
 
 ## Testing
 
