@@ -364,6 +364,72 @@ If you prefer to use Grafana Cloud instead of on-premises:
 
 **Note:** The backend API endpoints are designed to work with both on-premises Grafana and Grafana Cloud. The only difference is the URL you use when configuring the datasource.
 
+**Local Development/Testing with Grafana:**
+
+If you have Grafana on a Windows server but want to test your code locally, you can run a local Grafana instance:
+
+**Option 1: Using Docker (Recommended for Local Testing)**
+
+1. Start local Grafana and backend:
+
+   ```bash
+   # Windows
+   start-grafana-local.bat
+
+   # Linux/Mac
+   chmod +x start-grafana-local.sh
+   ./start-grafana-local.sh
+   ```
+
+   Or manually:
+
+   ```bash
+   docker-compose -f docker-compose.local.yml up -d
+   ```
+
+2. Access local Grafana at `http://localhost:3001`
+
+   - Username: `admin`
+   - Password: `admin`
+
+3. The datasource is automatically configured to point to your local backend at `http://localhost:8000`
+
+4. Test your code changes locally before deploying to the Windows server
+
+5. Stop local services:
+   ```bash
+   docker-compose -f docker-compose.local.yml down
+   ```
+
+**Option 2: Manual Local Grafana Installation**
+
+1. Install Grafana locally following [official documentation](https://grafana.com/docs/grafana/latest/setup-grafana/installation/)
+
+2. Install Simple JSON Datasource plugin:
+
+   ```bash
+   grafana-cli plugins install grafana-simple-json-datasource
+   ```
+
+3. Start your local backend:
+
+   ```bash
+   cd backend
+   venv\Scripts\activate  # Windows
+   python run.py
+   ```
+
+4. In local Grafana, add datasource:
+   - URL: `http://localhost:8000/api/v1/grafana`
+   - This connects to your local backend for testing
+
+**Development Workflow:**
+
+1. **Local Development**: Use local Grafana (`docker-compose.local.yml`) to test your backend code changes
+2. **Production/Windows Server**: Deploy tested code and connect Windows server Grafana to your deployed backend
+
+This allows you to develop and test locally without affecting your production Grafana on the Windows server.
+
 ## Testing
 
 ### Run All Tests

@@ -1,0 +1,50 @@
+version: '3.8'
+
+# Local development compose file - for testing with local Grafana
+# Usage: docker-compose -f docker-compose.local.yml up
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ZAMMAD_API_URL=${ZAMMAD_API_URL:-http://localhost:3000}
+      - ZAMMAD_API_TOKEN=${ZAMMAD_API_TOKEN}
+      - BACKEND_HOST=0.0.0.0
+      - BACKEND_PORT=8000
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:3001
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - zammad-hacka-network
+
+  grafana-local:
+    image: grafana/grafana:latest
+    container_name: zammad-grafana-local
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-local-storage:/var/lib/grafana
+    depends_on:
+      - backend
+    networks:
+      - zammad-hacka-network
+
+volumes:
+  grafana-local-storage:
+
+networks:
+  zammad-hacka-network:
+    driver: bridge
+

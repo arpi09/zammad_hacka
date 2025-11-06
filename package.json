@@ -9,6 +9,8 @@
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "cd backend && python run.py",
     "start:frontend": "cd frontend && npm run dev",
+    "start:grafana:local": "docker-compose -f docker-compose.local.yml up -d backend grafana-local",
+    "stop:grafana:local": "docker-compose -f docker-compose.local.yml down",
     "test:all": "npm run test:backend && npm run test:frontend",
     "test:backend": "cd backend && pytest",
     "test:frontend": "cd frontend && npm test"
