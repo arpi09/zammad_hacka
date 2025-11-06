@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# Development Tools
+ipython==8.18.1
+ipdb==0.13.13
+

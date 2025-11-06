@@ -1,0 +1,19 @@
+.dashboard {
+  width: 100%;
+}
+
+.dashboard h2 {
+  margin-bottom: 2rem;
+}
+
+.dashboard-loading,
+.dashboard-error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.dashboard-error {
+  color: #ff6b6b;
+}
+

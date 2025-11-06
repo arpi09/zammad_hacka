@@ -1,0 +1,42 @@
+.tickets {
+  width: 100%;
+}
+
+.tickets h2 {
+  margin-bottom: 2rem;
+}
+
+.tickets-loading,
+.tickets-error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.tickets-error {
+  color: #ff6b6b;
+}
+
+.tickets-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.ticket-card {
+  background-color: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.ticket-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.ticket-card p {
+  margin: 0.5rem 0;
+  color: #aaa;
+}
+
