@@ -15,13 +15,18 @@ router = APIRouter()
 
 @router.get("/", response_model=List[Ticket])
 async def get_tickets(
-    limit: Optional[int] = Query(None, ge=1, le=100),
-    offset: Optional[int] = Query(None, ge=0),
+    per_page: Optional[int] = Query(500, ge=1, le=500),
+    page: Optional[int] = Query(1, ge=1),
+    fetch_all: bool = Query(False),
     service: ZammadService = Depends(get_zammad_service),
 ) -> List[Ticket]:
-    """Get all tickets."""
+    """Get tickets with pagination. Set fetch_all=True to get all tickets."""
     try:
-        return await service.get_all_tickets(limit=limit, offset=offset)
+        return await service.get_all_tickets(
+            per_page=per_page,
+            page=page,
+            fetch_all=fetch_all
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching tickets: {str(e)}")
 

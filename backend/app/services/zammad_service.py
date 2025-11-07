@@ -20,10 +20,21 @@ class ZammadService:
         self.repository = repository
 
     async def get_all_tickets(
-        self, limit: Optional[int] = None, offset: Optional[int] = None
+        self,
+        per_page: Optional[int] = 500,
+        page: Optional[int] = 1,
+        sort_by: Optional[str] = "created_at",
+        order: Optional[str] = "desc",
+        fetch_all: bool = True,
     ) -> List[Ticket]:
-        """Get all tickets."""
-        return await self.repository.get_tickets(limit=limit, offset=offset)
+        """Get all tickets with pagination and sorting."""
+        return await self.repository.get_tickets(
+            per_page=per_page,
+            page=page,
+            sort_by=sort_by,
+            order=order,
+            fetch_all=fetch_all
+        )
 
     async def get_ticket_by_id(self, ticket_id: int) -> Optional[Ticket]:
         """Get ticket by ID."""
@@ -43,7 +54,7 @@ class ZammadService:
 
     async def get_ticket_statistics(self) -> TicketStatistics:
         """Calculate ticket statistics."""
-        tickets = await self.repository.get_tickets()
+        tickets = await self.repository.get_tickets(fetch_all=True)
 
         total_tickets = len(tickets)
         open_tickets = sum(1 for t in tickets if t.state and t.state.lower() != "closed")

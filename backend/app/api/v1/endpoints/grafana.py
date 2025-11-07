@@ -24,7 +24,7 @@ async def get_tickets_timeseries(
     Returns data in Grafana's expected format.
     """
     try:
-        tickets = await service.get_all_tickets()
+        tickets = await service.get_all_tickets(fetch_all=True)
         
         # Group tickets by creation date
         timeseries_data = {}
@@ -74,9 +74,10 @@ async def get_tickets_timeseries_table_2(
     """
     Get tickets as time-series data in table format for easier extraction.
     Returns data with separate columns for value and timestamp.
+    Fetches all latest tickets using pagination.
     """
     try:
-        tickets = await service.get_all_tickets()
+        tickets = await service.get_all_tickets(fetch_all=True)
         
         # Group tickets by creation date
         timeseries_data = {}

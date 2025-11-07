@@ -34,7 +34,7 @@ async def grafana_native_query(
             
             if target_ref == "tickets_timeseries" or "timeseries" in target_ref.lower():
                 # Get time series data
-                tickets = await service.get_all_tickets()
+                tickets = await service.get_all_tickets(fetch_all=True)
                 
                 # Group by time
                 timeseries_data: Dict[str, int] = {}
