@@ -5,7 +5,14 @@ Follows Dependency Inversion Principle - depends on repository interface.
 """
 from typing import List, Optional
 
-from app.domain.models import Organization, Ticket, TicketStatistics, User
+from app.domain.models import (
+    CustomerTicketCount,
+    Organization,
+    Ticket,
+    TicketStatistics,
+    TopCustomersResponse,
+    User,
+)
 from app.repositories.zammad_repository import IZammadRepository
 
 
@@ -80,4 +87,36 @@ class ZammadService:
             tickets_by_state=tickets_by_state,
             tickets_by_priority=tickets_by_priority,
         )
+
+    async def get_top_customers_by_tickets(self, limit: int = 10) -> TopCustomersResponse:
+        """Get top customers by ticket count from latest tickets."""
+        # Get all latest tickets (sorted by created_at desc)
+        tickets = await self.repository.get_tickets(
+            fetch_all=True,
+            sort_by="created_at",
+            order="desc"
+        )
+        
+        # Count tickets by customer_id
+        customer_ticket_counts: dict[int, int] = {}
+        for ticket in tickets:
+            if ticket.customer_id is not None:
+                customer_ticket_counts[ticket.customer_id] = (
+                    customer_ticket_counts.get(ticket.customer_id, 0) + 1
+                )
+        
+        # Sort by ticket count (descending) and get top N
+        sorted_customers = sorted(
+            customer_ticket_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:limit]
+        
+        # Convert to response model
+        customers = [
+            CustomerTicketCount(customer_id=customer_id, ticket_count=count)
+            for customer_id, count in sorted_customers
+        ]
+        
+        return TopCustomersResponse(customers=customers)
 

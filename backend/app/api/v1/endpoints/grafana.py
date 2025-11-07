@@ -167,6 +167,34 @@ async def get_tickets_by_priority_grafana(
         )
 
 
+@router.get("/tickets/top-customers")
+async def get_top_customers_grafana(
+    limit: int = Query(10, ge=1, le=100, description="Number of top customers to return"),
+    service: ZammadService = Depends(get_zammad_service),
+):
+    """
+    Get top customers by ticket count in Grafana-compatible format.
+    Returns data suitable for pie charts or bar charts.
+    Format: [{"label": "Customer 123", "value": 45}, ...]
+    """
+    try:
+        top_customers = await service.get_top_customers_by_tickets(limit=limit)
+        
+        # Convert to Grafana pie chart format with explicit label/value fields
+        result = []
+        for customer in top_customers.customers:
+            result.append({
+                "label": f"Customer {customer.customer_id}",
+                "value": customer.ticket_count
+            })
+        
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error getting top customers: {str(e)}"
+        )
+
+
 @router.get("/query")
 async def grafana_query_endpoint(
     target: Optional[str] = Query(None),

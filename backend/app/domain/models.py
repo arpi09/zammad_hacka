@@ -3,7 +3,7 @@ Domain models representing business entities.
 Follows Single Responsibility Principle - each model represents one entity.
 """
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -69,4 +69,17 @@ class TicketStatistics(BaseModel):
     closed_tickets: int
     tickets_by_state: dict[str, int] = Field(default_factory=dict)
     tickets_by_priority: dict[str, int] = Field(default_factory=dict)
+
+
+class CustomerTicketCount(BaseModel):
+    """Model for customer ticket count."""
+
+    customer_id: int
+    ticket_count: int
+
+
+class TopCustomersResponse(BaseModel):
+    """Response model for top customers by ticket count."""
+
+    customers: List[CustomerTicketCount]
 
