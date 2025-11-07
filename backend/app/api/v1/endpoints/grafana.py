@@ -69,15 +69,17 @@ async def get_tickets_timeseries(
 async def get_tickets_timeseries_table_2(
     from_time: Optional[str] = Query(None, alias="from"),
     to_time: Optional[str] = Query(None, alias="to"),
+    groupid: Optional[int] = Query(None, description="Filter tickets by group ID"),
     service: ZammadService = Depends(get_zammad_service),
 ):
     """
     Get tickets as time-series data in table format for easier extraction.
     Returns data with separate columns for value and timestamp.
     Fetches all latest tickets using pagination.
+    Optionally filters by group_id if provided.
     """
     try:
-        tickets = await service.get_all_tickets(fetch_all=True)
+        tickets = await service.get_all_tickets(fetch_all=True, group_id=groupid)
         
         # Group tickets by creation date
         timeseries_data = {}

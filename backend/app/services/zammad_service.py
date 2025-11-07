@@ -26,14 +26,16 @@ class ZammadService:
         sort_by: Optional[str] = "created_at",
         order: Optional[str] = "desc",
         fetch_all: bool = True,
+        group_id: Optional[int] = None,
     ) -> List[Ticket]:
-        """Get all tickets with pagination and sorting."""
+        """Get all tickets with pagination and sorting, optionally filtered by group_id."""
         return await self.repository.get_tickets(
             per_page=per_page,
             page=page,
             sort_by=sort_by,
             order=order,
-            fetch_all=fetch_all
+            fetch_all=fetch_all,
+            group_id=group_id
         )
 
     async def get_ticket_by_id(self, ticket_id: int) -> Optional[Ticket]:

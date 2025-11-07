@@ -20,6 +20,7 @@ class Ticket(BaseModel):
     updated_at: Optional[datetime] = None
     customer_id: Optional[int] = None
     organization_id: Optional[int] = None
+    group_id: Optional[int] = None
 
     class Config:
         """Pydantic config."""

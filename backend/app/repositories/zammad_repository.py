@@ -19,8 +19,9 @@ class IZammadRepository(ABC):
         sort_by: Optional[str] = "created_at",
         order: Optional[str] = "desc",
         fetch_all: bool = False,
+        group_id: Optional[int] = None,
     ) -> List[Ticket]:
-        """Get tickets from Zammad with pagination and sorting."""
+        """Get tickets from Zammad with pagination and sorting, optionally filtered by group_id."""
         pass
 
     @abstractmethod
@@ -75,6 +76,7 @@ class ZammadRepository(IZammadRepository):
         sort_by: Optional[str] = "created_at",
         order: Optional[str] = "desc",
         fetch_all: bool = False,
+        group_id: Optional[int] = None,
     ) -> List[Ticket]:
         """Get tickets from Zammad with pagination and sorting using search endpoint."""
         # Use search endpoint for sorting support
@@ -92,10 +94,16 @@ class ZammadRepository(IZammadRepository):
         if order is None:
             order = "desc"
         
+        # Build query string - filter by group_id if provided
+        if group_id is not None:
+            query = f"group_id:{group_id}"
+        else:
+            query = "*"  # Get all tickets
+        
         while True:
-            # Search endpoint uses 'order_by' instead of 'order' and requires 'query=*' for all tickets
+            # Search endpoint uses 'order_by' instead of 'order'
             params = [
-                f"query=*",  # Get all tickets
+                f"query={query}",
                 f"page={current_page}",
                 f"per_page={per_page}",
                 f"sort_by={sort_by}",
